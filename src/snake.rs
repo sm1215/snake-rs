@@ -36,7 +36,7 @@ impl Snake {
     }
 
     pub fn slither(&mut self) {
-        self.body.insert(0, self.body.first().unwrap().transform(self.direction, 1))
+        self.body.insert(0, self.body.first().unwrap().transform(self.direction, 1));
 
         if !self.digesting {
             self.body.remove(self.body.len() - 1);
