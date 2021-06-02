@@ -11,8 +11,8 @@ use crossterm::event::{poll, read, Event, KeyCode, KeyModifiers, KeyEvent};
 use crate::command::Command;
 use rand::Rng;
 
-const MAX_INTERVAL: u16 = 700;
-const MIN_INTERVAL: u16 = 200;
+const MAX_INTERVAL: u16 = 300;
+const MIN_INTERVAL: u16 = 100;
 const MAX_SPEED: u16 = 20;
 
 #[derive(Debug)]
@@ -215,7 +215,11 @@ impl Game {
 
         let body_points = self.snake.get_body_points();
         for (i, body) in body_points.iter().enumerate() {
-            let previous = if i == 0 { None } else { body_points.get(i - 1) };
+            let previous = if i == 0 { 
+                None
+            } else {
+                body_points.get(i - 1)
+            };
             let next = body_points.get(i + 1);
             let symbol = if let Some(&next) = next {
                 if let Some(&previous) = previous {
@@ -238,7 +242,7 @@ impl Game {
                         };
                         if (next == d && previous == r) || (previous == d && next == r) {
                             '╔'
-                        } else if (next == d && previous == l) || (previous == d && next == r) {
+                        } else if (next == d && previous == l) || (previous == d && next == l) {
                             '╗'
                         } else if (next == u && previous == r) || (previous == u && next == r) {
                             '╚'
@@ -247,7 +251,7 @@ impl Game {
                         }
                     }
                 } else {
-                    'O'
+                    '•'
                 }
             } else if let Some(&previous) = previous {
                 if body.y == previous.y {
