@@ -119,5 +119,61 @@ impl Game {
             .execute(Hide).unwrap();
     }
 
-    // TODO: The Loop: calculate_interval
+    fn calculate_interval(&self) -> Duration {
+        let speed = MAX_SPEED - self.speed;
+        Duration::from_millis(
+            (MIN_INTERVAL + (((MAX_INTERVAL - MIN_INTERVAL) / MAX_SPEED) * speed)) as u64
+        )
+    }
+
+    fn get_command(&self, wait_for: Duration) -> Option<Command> {
+        let key_event = self.wait_for_key_event(wait_for)?;
+
+        match key_event.code {
+            KeyCode::Char('q') | KeyCode::Char('Q') | KeyCode::Esc => Some(Command::Quit),
+            KeyCode::Char('c') | KeyCode::('C') =>
+                if key_event.modifiers == KeyModifiers::CONTROL {
+                    Some(Command::Quit)
+                } else {
+                    None
+                }
+            KeyCode::Up => Some(Command::Turn(Direction::Up)),
+            KeyCode::Right => Some(Command::Turn(Direction::Right)),
+            KeyCode::Down => Some(Command::Turn(Direction::Down)),
+            _ => None
+        }
+    }
+
+    fn wait_for_key_event(&self, wait_for: Duration) -> Option<KeyEvent> {
+        // TODO: where do the poll and read functions come from? crossTerm?
+        if poll(wait_for).ok()? {
+            let event = read().ok()?;
+            if let Event::Key(key_event) = event {
+                return Some(key_event);
+            }
+        }
+
+        None
+    }
+
+    fn has_collided_with_wall(&self) -> bool {
+        let head_point = self.snake.get_head_point();
+
+        match self.snake.get_direction() {
+            Direction::Up => head_point.y <= 0,
+            Direction::Right => head_point.x >= self.width - 1,
+            Direction::Down => head_point.y >= self.height - 1,
+            Direction::Left => head_point.x <= 0,
+        }
+    }
+
+    fn has_bitten_itself(&self) -> bool {
+        // TODO: where does the transform function come from? the Point crate?
+        let next_head_point = self.snake.get_head_point().transform(self.snake.get_direction(), 1);
+        let mut next_body_points = self.snake.get_body_points().clone();
+        next_body_points.remove(next_body_points.len() - 1);
+        next_body_points.remove(0);
+
+        next_body_points.contains(&next_head_point)
+    }
 }
