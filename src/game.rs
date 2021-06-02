@@ -143,6 +143,7 @@ impl Game {
             KeyCode::Up => Some(Command::Turn(Direction::Up)),
             KeyCode::Right => Some(Command::Turn(Direction::Right)),
             KeyCode::Down => Some(Command::Turn(Direction::Down)),
+            KeyCode::Left => Some(Command::Turn(Direction::Left)),
             _ => None
         }
     }
