@@ -61,11 +61,13 @@ impl Game {
             let interval = self.calculate_interval();
             let direction = self.snake.get_direction();
             let now = Instant::now();
+            let mut game_over_reason = String::from("");
 
             while now.elapsed() < interval {
                 if let Some(command) = self.get_command(interval - now.elapsed()) {
                     match command {
                         Command::Quit => {
+                            game_over_reason = String::from("You quit.");
                             done = true;
                             break;
                         }
@@ -77,7 +79,11 @@ impl Game {
                     }
                 }
 
-                if self.has_collided_with_wall() || self.has_bitten_itself() {
+                if self.has_collided_with_wall() {
+                    game_over_reason = String::from("You hit a wall.");
+                    done = true;
+                } else if self.has_bitten_itself() {
+                    game_over_reason = String::from("You bit yourself.");
                     done = true;
                 } else {
                     self.snake.slither();
@@ -98,8 +104,10 @@ impl Game {
                 }
             }
 
-            self.restore_ui();
-            println!("Game Over! Your score is {}", self.score);
+            if done {
+                self.restore_ui();
+                println!("Game Over! {0} Your score is {1}.", game_over_reason, self.score);
+            }
         }
     }
 
